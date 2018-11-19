@@ -22,3 +22,40 @@ You can download AppRunner from [this link](https://github.com/FireflyMigration/
 
 For details about how to use it please refer to the [ReadMe page](https://github.com/FireflyMigration/AppRunner/blob/master/README.md)
 
+## Additional Solution
+I would like to propose another solution for this problem, suggested by our IT department. It is short and easy to implement by using windows command tool (CMD). Since we implemented it, three months ago, we had no related crashes. 
+It works locally for the programmer or added to  the launching cmd file on the Citrix server for end users.
+Example:
+The application exe file is on the following path:  v:\VersionXYZ\myExe.exe
+v - Is a network directory used by all the users to run the application which causes it to crash occasionally.
+The solution we used is based on forcing the OS to treat drive V as a local directory on drive C by using MKLINK command.
+
+Implementation:
+•	Open CMD
+•	Command: Cd c:
+•	Command: mklink /D "location:\link" "Target directory - containing the exe folder or cmd to run".
+Or, Detailed:
+Create a  linked shortcut, named "V" to this location: \\files01\TheApplicationOrCMDFileDir
+C:\> mklink /D C:\v \\files01\TheApplicationOrCMDFileDir
+
+/D – Is a parameter represents directory.
+
+Now, you can see on drive C a new linked shortcut to drive V. 
+
+
+We implemented it for the users by changing the application launcher CMD\BAT file and added the line:
+If not exist c:\v mklink /D C:\v \\files01\net
+
+The whole CMD/BAT file looks like this:
+"
+...
+If not exist c:\v mklink /D C:\v \\files01\TheApplicationOrCMDFileDir
+
+c:
+cd v\
+cd VersionXYZ
+start myExe.exe /ini=...
+...
+"
+
+It works :-)
